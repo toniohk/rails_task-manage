@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_21_055101) do
+ActiveRecord::Schema.define(version: 2021_05_21_143424) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,26 +27,33 @@ ActiveRecord::Schema.define(version: 2021_05_21_055101) do
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
+  create_table "task_relations", force: :cascade do |t|
+    t.bigint "parent_id"
+    t.bigint "child_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["child_id"], name: "index_task_relations_on_child_id"
+    t.index ["parent_id"], name: "index_task_relations_on_parent_id"
+  end
+
   create_table "tasks", force: :cascade do |t|
     t.string "title"
     t.string "description"
     t.integer "work_focus"
     t.date "due_date"
     t.integer "status"
-    t.bigint "parent_id", null: false
     t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["parent_id"], name: "index_tasks_on_parent_id"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "title"
-    t.string "email"
-    t.string "password"
-    t.integer "role"
+    t.string "email", null: false
+    t.string "password_digest", null: false
+    t.integer "role", null: false
     t.integer "work_focus"
     t.integer "status"
     t.datetime "created_at", precision: 6, null: false
@@ -55,6 +62,7 @@ ActiveRecord::Schema.define(version: 2021_05_21_055101) do
 
   add_foreign_key "projects", "tasks"
   add_foreign_key "projects", "users"
-  add_foreign_key "tasks", "tasks", column: "parent_id"
+  add_foreign_key "task_relations", "tasks", column: "child_id"
+  add_foreign_key "task_relations", "tasks", column: "parent_id"
   add_foreign_key "tasks", "users"
 end
