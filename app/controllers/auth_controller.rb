@@ -14,7 +14,9 @@ class AuthController < ApplicationController
   def login
     @user = User.find_by(email: params[:email])
 
-    if @user && @user.authenticate(params[:password])
+    if @user.status === 0
+      render json: {message: "Your account is inactive now"}, status: :bad_request
+    elsif @user && @user.authenticate(params[:password])
       token = encode_token({user_id: @user.id})
       render json: {user: @user, token: token}
     else
